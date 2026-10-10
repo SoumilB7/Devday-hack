@@ -137,7 +137,7 @@ const ROUNDS: Round[] = [
     id: "throw",
     title: "A ball is thrown forward and upward.",
     setup: "No air resistance in any of these worlds.",
-    box: { w: 34, h: 13 },
+    box: { w: 42, h: 12 },
     duration: 3.6,
     strobe: 0.2,
     trail: ["ball"],

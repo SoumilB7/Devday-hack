@@ -144,8 +144,8 @@ export function Strobe() {
     const pad = 36;
     const scale = (w - pad * 2) / TRACK;
     const ox = pad;
-    const worldY = Math.round(h * 0.42);
-    const youY = Math.round(h * 0.74);
+    const worldY = Math.round(h * 0.55);
+    const youY = Math.round(h * 0.76);
     geo.current = { ox, scale, worldY, youY };
     const X = (m: number) => ox + m * scale;
 
@@ -170,10 +170,10 @@ export function Strobe() {
       ctx.strokeStyle = major ? "#d4d4d4" : "#ececec";
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(x, h - 40);
-      ctx.lineTo(x, h - (major ? 30 : 35));
+      ctx.moveTo(x, h - 84);
+      ctx.lineTo(x, h - (major ? 74 : 79));
       ctx.stroke();
-      if (major) label(ctx, `${m} m`, x, h - 16, C.label, 10, "center");
+      if (major) label(ctx, `${m} m`, x, h - 60, C.label, 10, "center");
     }
 
     // lanes
@@ -324,7 +324,7 @@ export function Strobe() {
           options={(Object.keys(SCENARIOS) as ScenarioId[]).map((k) => ({ value: k, label: SCENARIOS[k].label }))}
         />
       </div>
-      <CanvasCard height="h-[460px]">
+      <CanvasCard height="h-[540px]">
         <SimCanvas
           ariaLabel="Strobe track: place where the object will be at each camera flash"
           onFrame={onFrame}

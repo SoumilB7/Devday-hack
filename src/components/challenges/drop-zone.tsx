@@ -139,7 +139,8 @@ const randTarget = (L: Layer) => {
   return Math.round(a + Math.random() * (b - a));
 };
 
-function freshSim(L: Layer): Sim {
+/** `random` is only safe from event handlers — render must stay deterministic for prerendering. */
+function freshSim(L: Layer, random = true): Sim {
   return {
     t: 0,
     running: false,
@@ -147,7 +148,7 @@ function freshSim(L: Layer): Sim {
     landed: null,
     strobe: [],
     planeTicks: [],
-    targetX: randTarget(L),
+    targetX: random ? randTarget(L) : Math.round((L.targetRange[0] + L.targetRange[1]) / 2),
     sketch: [],
     drawing: false,
     attempts: [],
@@ -168,7 +169,7 @@ export function DropZone() {
   const [attempts, setAttempts] = useState(0);
   const [released, setReleased] = useState(false);
 
-  const sim = useRef<Sim>(freshSim(L));
+  const sim = useRef<Sim>(freshSim(LAYERS.cruise, false));
   const view = useRef<View>({ scale: 1, ox: 0, oy: 0 });
   const lastStats = useRef(0);
   const cruiseLead = useRef<number | null>(null);
@@ -426,18 +427,23 @@ export function DropZone() {
     }
 
     // where the plane was at each strobe flash (reveals relative motion without words)
+    // In the pilot's frame each flash is drawn where it was relative to the plane at that instant.
     if (s.release) {
-      for (const x of s.planeTicks) {
-        const p = toPx(v, x, H);
-        ctx.strokeStyle = C.trailSoft;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y - 4);
-        ctx.lineTo(p.x, p.y + 4);
-        ctx.stroke();
+      const pilot = L.frame === "pilot";
+      if (!pilot) {
+        for (const x of s.planeTicks) {
+          const p = toPx(v, x, H);
+          ctx.strokeStyle = C.trailSoft;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y - 4);
+          ctx.lineTo(p.x, p.y + 4);
+          ctx.stroke();
+        }
       }
       for (let i = 0; i < s.strobe.length; i++) {
-        const p = toPx(v, s.strobe[i].x, s.strobe[i].y);
+        const x = pilot ? pX + (s.strobe[i].x - s.planeTicks[i]) : s.strobe[i].x;
+        const p = toPx(v, x, s.strobe[i].y);
         dot(ctx, p.x, p.y, 2.6, C.trail);
       }
     }
